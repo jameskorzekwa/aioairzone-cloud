@@ -20,6 +20,8 @@ from .aidoo import Aidoo
 from .air_quality import AirQuality
 from .common import ConnectionOptions, OperationMode
 from .const import (
+    API_ACTIVATE,
+    API_ACTIVATED,
     API_AUTH_LOGIN,
     API_AUTH_REFRESH_TOKEN,
     API_AZ_ACS,
@@ -44,6 +46,8 @@ from .const import (
     API_PARAM,
     API_PARAMS,
     API_PASSWORD,
+    API_SCHEDULE,
+    API_SCHEDULES,
     API_STATUS,
     API_TYPE,
     API_TYPE_USER,
@@ -340,6 +344,86 @@ class AirzoneCloudApi:
             "PUT",
             f"{API_V1}/{API_INSTALLATIONS}/{inst_url}",
             json,
+        )
+
+    async def api_delete_installation_schedule(
+        self, installation: Installation, schedule_id: str
+    ) -> dict[str, Any]:
+        """Remove the schedule from the installation."""
+        inst_id = installation.get_id()
+        url_id = urllib.parse.quote(inst_id)
+        sched_url = urllib.parse.quote(schedule_id)
+
+        return await self.api_request(
+            "DELETE",
+            f"{API_V1}/{API_INSTALLATIONS}/{url_id}/{API_SCHEDULE}/{sched_url}",
+        )
+
+    async def api_delete_installation_schedules(
+        self, installation: Installation
+    ) -> dict[str, Any]:
+        """Remove all installation schedules."""
+        inst_id = installation.get_id()
+        url_id = urllib.parse.quote(inst_id)
+
+        return await self.api_request(
+            "DELETE",
+            f"{API_V1}/{API_INSTALLATIONS}/{url_id}/{API_SCHEDULES}",
+        )
+
+    async def api_get_installation_schedules(
+        self, installation: Installation
+    ) -> dict[str, Any]:
+        """Request API installation schedules data."""
+        inst_id = installation.get_id()
+        url_id = urllib.parse.quote(inst_id)
+
+        return await self.api_request(
+            "GET",
+            f"{API_V1}/{API_INSTALLATIONS}/{url_id}/{API_SCHEDULES}",
+        )
+
+    async def api_patch_installation_schedule(
+        self,
+        installation: Installation,
+        schedule_id: str,
+        schedule_data: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Edit the installation's schedule."""
+        inst_id = installation.get_id()
+        url_id = urllib.parse.quote(inst_id)
+        sched_url = urllib.parse.quote(schedule_id)
+
+        return await self.api_request(
+            "PATCH",
+            f"{API_V1}/{API_INSTALLATIONS}/{url_id}/{API_SCHEDULE}/{sched_url}",
+            schedule_data,
+        )
+
+    async def api_patch_installation_schedules_activate(
+        self, installation: Installation, active: bool
+    ) -> dict[str, Any]:
+        """Activate or deactivate installation level schedules."""
+        inst_id = installation.get_id()
+        url_id = urllib.parse.quote(inst_id)
+
+        return await self.api_request(
+            "PATCH",
+            f"{API_V1}/{API_INSTALLATIONS}/{url_id}/{API_SCHEDULES}/{API_ACTIVATE}",
+            {API_ACTIVATED: active},
+        )
+
+    async def api_post_installation_schedule(
+        self, installation: Installation, schedule_data: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Create a schedule for an installation."""
+        inst_id = installation.get_id()
+        url_id = urllib.parse.quote(inst_id)
+
+        return await self.api_request(
+            "POST",
+            f"{API_V1}/{API_INSTALLATIONS}/{url_id}/{API_SCHEDULES}",
+            schedule_data,
         )
 
     def api_conv_special_mode(
